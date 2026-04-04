@@ -1,0 +1,7 @@
+flags
+
+-eq
+show equation after finishing prompt (dont show by default)
+
+-ext
+extended math functions (sin, cos, tan, log, alog, !)

@@ -1,0 +1,40 @@
+"Quixmath"
+
+Desc:
+    Simple C equation parser and calculation tool.
+    Supports basic operators, exponentiation, and parentheses.
+
+Files:
+    src/main.c      - Entry point and AST evaluator.
+    src/parse.c/.h  - Equation parser, follows PEMDAS.
+    src/flags.c/.h  - Flag and argument parsing.
+    src/values.h    - Primitive type aliases.
+
+Building:
+    $ make
+
+Installing:
+    $ sudo make install
+
+Running:
+    $ qm [options] "<equation>"
+    $ qm h|help|? (for help)
+
+Options:
+    fb              Output result in binary.
+    fo              Output result in octal.
+    fd              Output result in decimal (default).
+    fx              Output result in hexadecimal.
+    ib              Parse equation numbers as binary.
+    io              Parse equation numbers as octal.
+    id              Parse equation numbers as decimal (default).
+    ix              Parse equation numbers as hexadecimal.
+    o <file>        Write output to file instead of stdout.
+
+Operators:
+    +  -  *  /  ^
+
+Testing:
+    $ make test
+
+Ashlynn Borges "rxsxy", 2026
