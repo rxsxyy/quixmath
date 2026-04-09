@@ -2,7 +2,7 @@ PREFIX ?= /usr/local
 DESTDIR ?=
 
 CC = gcc
-CFLAGS = -Wall -Wextra -O3 -DNDEBUG
+CFLAGS = -std=c99 -pedantic -Wall -Wextra -O3 -DNDEBUG
 LFLAGS = -lm
 
 TARGET = quixmath
