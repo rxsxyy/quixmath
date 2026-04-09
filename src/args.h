@@ -14,8 +14,10 @@ typedef enum {
 typedef struct {
 	Base base;
 	char *out_file;
+	char *equation;
 	Bool show_help;
 	Bool show_ver;
+	void *empty;
 } Flags;
 
 typedef enum {

@@ -2,11 +2,10 @@ PREFIX ?= /usr/local
 DESTDIR ?=
 
 CC = gcc
-CFLAGS = -std=c99 -pedantic -Wall -Wextra -O3 -DNDEBUG
+CFLAGS = -std=c99 -Wall -Wextra -O3 -DNDEBUG
 LFLAGS = -lm
 
-TARGET = quixmath
-TARGET_ALIAS = qm
+TARGET = qm
 
 SRC_DIR  = src
 BIN_DIR  = bin
@@ -26,9 +25,6 @@ $(BIN_DIR)/$(TARGET): $(OBJECTS) | $(BIN_DIR)
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c | $(OBJ_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
-
-$(BIN_DIR)/$(TARGET_ALIAS): $(BIN_DIR)/$(TARGET)
-	ln -sf $(TARGET) $(BIN_DIR)/$(TARGET_ALIAS)
 
 test: $(BIN_DIR)/$(TARGET)
 	@passed=0; failed=0; \
@@ -63,7 +59,6 @@ debug: clean all
 install: $(BIN_DIR)/$(TARGET)
 	install -d $(DESTDIR)$(PREFIX)/bin
 	install -m 755 $(BIN_DIR)/$(TARGET) $(DESTDIR)$(PREFIX)/bin/$(TARGET)
-	ln -sf $(TARGET) $(DESTDIR)$(PREFIX)/bin/$(TARGET_ALIAS)
 
 uninstall:
 	rm -f $(DESTDIR)$(PREFIX)/bin/$(TARGET) $(DESTDIR)$(PREFIX)/bin/$(TARGET_ALIAS)
