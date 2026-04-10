@@ -5,7 +5,6 @@
 #include <stdlib.h>
 
 static const char *ptr;
-static i32 parse_base;
 
 static void skip_spaces(void) {
         while (isspace((u8)*ptr)) {
@@ -43,7 +42,6 @@ static Node *make_op(OP_KIND op, Node *left, Node *right) {
 
 /* Parses a primary expression: either a parenthesized sub-expression or a
  * numeric literal. Returns NULL if neither is found at the current position.
- * Uses strtod for base 10 (supports decimals), strtol for all other bases.
  */
 static Node *parse_primary(void);
 
@@ -81,12 +79,7 @@ static Node *parse_primary(void) {
         }
 
         char *end;
-        f64 v;
-        if (parse_base == 10) {
-                v = strtod(ptr, &end);
-        } else {
-                v = (f64)strtol(ptr, &end, parse_base);
-        }
+        f64 v = strtod(ptr, &end);
         if (end == ptr)
                 return NULL;
         ptr = end;
@@ -165,12 +158,11 @@ static Node *parse_expr(void) {
         return left;
 }
 
-Node *parse_eq(const char *eq, i32 base) {
+Node *parse_eq(const char *eq) {
         if (!eq) {
                 return NULL;
         }
         ptr = eq;
-        parse_base = base;
         Node *root = parse_expr();
         skip_spaces();
         if (*ptr != '\0') {

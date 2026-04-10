@@ -4,15 +4,7 @@
 
 #include "types.h"
 
-/* Numeric base for equation and variables. */
-typedef enum {
-	B_BINARY,
-	B_DECIMAL,
-	B_HEXADECIMAL,
-} Base;
-
 typedef struct {
-	Base base;
 	char *out_file;
 	char *equation;
 	Bool show_help;

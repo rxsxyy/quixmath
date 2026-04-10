@@ -23,8 +23,7 @@ i32 main(i32 argc, char **argv) {
 		return 1;
 	}
 
-	i32   base = base_to_int(flags.base);
-	Node *tree = parse_eq(flags.equation, base);
+	Node *tree = parse_eq(flags.equation);
 
 	if (!tree) {
 		fprintf(stderr, "%s: malformed equation: %s\n", NAME, flags.equation);
@@ -34,7 +33,7 @@ i32 main(i32 argc, char **argv) {
 	f64 result = eval(tree);
 	free_node(tree);
 
-	print_result(result, flags.base);
+	print_result(result);
 
 	return 0;
 }

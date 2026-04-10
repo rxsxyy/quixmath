@@ -40,12 +40,10 @@ typedef struct Node {
 } Node;
 
 /* Entry point for parsing. Sets the global ptr to eq and runs parse_expr.
- * base controls how numeric literals in the equation are interpreted:
- *   10 = decimal (strtod), 2 = binary, 16 = hexadecimal (strtol).
  * Returns NULL if eq is NULL or if any characters remain after parsing,
  * indicating a malformed expression.
  */
-Node *parse_eq(const char *eq, i32 base);
+Node *parse_eq(const char *eq);
 
 void free_node(Node *node);
 

@@ -6,10 +6,6 @@
 
 /* Table of available flags in current state. */
 const Option FLAG_TABLE[] = {
-        /* Base options, includes Binary, Decimal and heXadecimal. */
-        {      "-fb",  O_INT, offsetof(Flags,      base), 0},
-        {      "-fd",  O_INT, offsetof(Flags,      base), 1},
-        {      "-fx",  O_INT, offsetof(Flags,      base), 2},
         /* PLANNED: Option for file input.  */
         {       "-f",  O_STR, offsetof(Flags,     empty), 0},
         /* Option for file output, will store the result of the equation.  */
@@ -28,7 +24,7 @@ const Option FLAG_TABLE[] = {
 const usize FLAG_TABLE_LEN = sizeof(FLAG_TABLE) / sizeof(FLAG_TABLE[0]);
 
 Flags parse_flags(i32 argc, char **argv) {
-	Flags flags = {B_DECIMAL, NULL, NULL, false, false, 0};
+	Flags flags = {NULL, NULL, false, false, 0};
 
 	for (i32 i = 1; i < argc; i++) {
 		Bool matched = false;
