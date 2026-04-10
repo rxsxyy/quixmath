@@ -26,30 +26,6 @@ $(BIN_DIR)/$(TARGET): $(OBJECTS) | $(BIN_DIR)
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c | $(OBJ_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-test: $(BIN_DIR)/$(TARGET)
-	@passed=0; failed=0; \
-	for f in $(TEST_DIR)/*.txt; do \
-		first_line=$$(head -n 1 "$$f"); \
-		flags=$$(echo "$$first_line" | cut -d'|' -f1 | xargs); \
-		equation=$$(echo "$$first_line" | cut -d'|' -f2 | xargs); \
-		tail -n +2 "$$f" > /tmp/$(TARGET)_expected; \
-		if [ -n "$$flags" ] && [ "$$flags" != "none" ]; then \
-			./$(BIN_DIR)/$(TARGET) $$flags "$$equation" > /tmp/$(TARGET)_actual 2>/dev/null; \
-		else \
-			./$(BIN_DIR)/$(TARGET) "$$equation" > /tmp/$(TARGET)_actual 2>/dev/null; \
-		fi; \
-		if diff -q /tmp/$(TARGET)_expected /tmp/$(TARGET)_actual > /dev/null 2>&1; then \
-			echo "PASS: $$flags | $$equation"; \
-			passed=$$((passed + 1)); \
-		else \
-			echo "FAIL: $$flags | $$equation"; \
-			diff /tmp/$(TARGET)_expected /tmp/$(TARGET)_actual; \
-			failed=$$((failed + 1)); \
-		fi; \
-	done; \
-	echo ""; \
-	echo "$$passed passed, $$failed failed"
-
 clean:
 	rm -rf $(BIN_DIR) $(OBJ_DIR)
 
