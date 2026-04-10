@@ -5,6 +5,10 @@
 #include "args.h"
 #include "parse.h"
 
+#include "math.h"
+#include "stdint.h"
+#include "stdio.h"
+
 #define VERSION 1
 #define NAME "quixmath"
 

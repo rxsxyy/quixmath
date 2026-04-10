@@ -1,11 +1,9 @@
 
 #include "parse.h"
 
-#include <ctype.h>
-#include <stdlib.h>
-
 static const char *ptr;
 
+/* Skip spaces in equation argument */
 static void skip_spaces(void) {
         while (isspace((u8)*ptr)) {
                 ptr++;
@@ -43,29 +41,6 @@ static Node *make_op(OP_KIND op, Node *left, Node *right) {
 /* Parses a primary expression: either a parenthesized sub-expression or a
  * numeric literal. Returns NULL if neither is found at the current position.
  */
-static Node *parse_primary(void);
-
-/* Parses a unary expression. Handles leading '-' by constructing a
- * (0 - operand) subtraction node. Supports chained negation (e.g. --5). Falls
- * through to parse_primary if no unary operator is present.
- */
-static Node *parse_unary(void);
-
-/* Parses an exponentiation expression. '^' is right-associative, so the
- * exponent is parsed recursively (e.g. 2^3^4 evaluates as 2^(3^4)).
- */
-static Node *parse_power(void);
-
-/* Parses a multiplicative expression. Handles '*' and '/' left-associatively,
- * consuming as many factors as are present.
- */
-static Node *parse_term(void);
-
-/* Parses an additive expression. Handles '+' and '-' left-associatively,
- * consuming as many terms as are present. Entry point of the precedence chain.
- */
-static Node *parse_expr(void);
-
 static Node *parse_primary(void) {
         skip_spaces();
 
@@ -86,6 +61,10 @@ static Node *parse_primary(void) {
         return make_num(v);
 }
 
+/* Parses a unary expression. Handles leading '-' by constructing a
+ * (0 - operand) subtraction node. Supports chained negation (e.g. --5). Falls
+ * through to parse_primary if no unary operator is present.
+ */
 static Node *parse_unary(void) {
         skip_spaces();
         if (*ptr == '-') {
@@ -103,6 +82,9 @@ static Node *parse_unary(void) {
         return parse_primary();
 }
 
+/* Parses an exponentiation expression. '^' is right-associative, so the
+ * exponent is parsed recursively (e.g. 2^3^4 evaluates as 2^(3^4)).
+ */
 static Node *parse_power(void) {
         Node *base = parse_unary();
         if (!base)
@@ -120,6 +102,9 @@ static Node *parse_power(void) {
         return base;
 }
 
+/* Parses a multiplicative expression. Handles '*' and '/' left-associatively,
+ * consuming as many factors as are present.
+ */
 static Node *parse_term(void) {
         Node *left = parse_power();
         if (!left)
@@ -139,6 +124,9 @@ static Node *parse_term(void) {
         return left;
 }
 
+/* Parses an additive expression. Handles '+' and '-' left-associatively,
+ * consuming as many terms as are present. Entry point of the precedence chain.
+ */
 static Node *parse_expr(void) {
         Node *left = parse_term();
         if (!left)
@@ -158,7 +146,11 @@ static Node *parse_expr(void) {
         return left;
 }
 
-Node *parse_eq(const char *eq) {
+/* Entry point for parsing. Sets the global ptr to eq and runs parse_expr.
+ * Returns NULL if eq is NULL or if any characters remain after parsing,
+ * indicating a malformed expression.
+ */
+Node *parse_equation(const char *eq) {
         if (!eq) {
                 return NULL;
         }
@@ -172,6 +164,9 @@ Node *parse_eq(const char *eq) {
         return root;
 }
 
+/* Frees node at the end of node calculation. Used at the end of main() to free
+ * the equation in total. 
+ */
 void free_node(Node *node) {
         if (!node) {
                 return;

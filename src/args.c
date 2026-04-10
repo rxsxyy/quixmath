@@ -1,17 +1,15 @@
 
 #include "args.h"
-#include "stddef.h"
-#include "stdio.h"
-#include "string.h"
 
 /* Table of available flags in current state. */
-const Option FLAG_TABLE[] = {
+const Option OPTION_TABLE[] = {
         /* PLANNED: Option for file input.  */
         {       "-f",  O_STR, offsetof(Flags,     empty), 0},
         /* Option for file output, will store the result of the equation.  */
         {       "-o",  O_STR, offsetof(Flags,  out_file), 0},
-        /* PLANNED: Option for graphical view. Opens window showing 2d/3d graph */
+        /* PLANNED: Options for graphical view. Opens window showing 2d/3d graph */
         {       "-g", O_BOOL, offsetof(Flags,     empty), 0},
+        {  "--graph", O_BOOL, offsetof(Flags,     empty), 0},
         /* Help options. */
         {       "-h", O_BOOL, offsetof(Flags, show_help), 1},
         {   "--help", O_BOOL, offsetof(Flags, show_help), 1},
@@ -21,31 +19,33 @@ const Option FLAG_TABLE[] = {
         {"--version", O_BOOL, offsetof(Flags,  show_ver), 1},
 };
 
-const usize FLAG_TABLE_LEN = sizeof(FLAG_TABLE) / sizeof(FLAG_TABLE[0]);
+/* Length of table of available flags */
+const usize OPTION_TABLE_LEN = sizeof(OPTION_TABLE) / sizeof(OPTION_TABLE[0]);
 
+/* Parses flags sent as arguments. */
 Flags parse_flags(i32 argc, char **argv) {
 	Flags flags = {NULL, NULL, false, false, 0};
 
 	for (i32 i = 1; i < argc; i++) {
 		Bool matched = false;
 
-		for (usize j = 0; j < FLAG_TABLE_LEN; j++) {
-			if (strcmp(argv[i], FLAG_TABLE[j].name) != 0) {
+		for (usize j = 0; j < OPTION_TABLE_LEN; j++) {
+			if (strcmp(argv[i], OPTION_TABLE[j].name) != 0) {
 				continue;
 			}
 
 			char *base = (char *)&flags;
 
-			switch (FLAG_TABLE[j].kind) {
+			switch (OPTION_TABLE[j].kind) {
 			case O_BOOL:
-				*(Bool *)(base + FLAG_TABLE[j].offset) = (Bool)FLAG_TABLE[j].value;
+				*(Bool *)(base + OPTION_TABLE[j].offset) = (Bool)OPTION_TABLE[j].value;
 				break;
 			case O_INT:
-				*(i32 *)(base + FLAG_TABLE[j].offset) = FLAG_TABLE[j].value;
+				*(i32 *)(base + OPTION_TABLE[j].offset) = OPTION_TABLE[j].value;
 				break;
 			case O_STR:
 				if (i + 1 < argc) {
-					*(char **)(base + FLAG_TABLE[j].offset) = argv[++i];
+					*(char **)(base + OPTION_TABLE[j].offset) = argv[++i];
 				}
 				break;
 			}

@@ -1,10 +1,7 @@
 
 #include "quixmath.h"
 
-#include "math.h"
-#include "stdint.h"
-#include "stdio.h"
-
+/* Recursively evaluates an AST produced by parse_eq. */
 f64 eval(const Node *node) {
 	if (!node)
 		return 0.0;
@@ -31,6 +28,8 @@ f64 eval(const Node *node) {
 	return 0.0;
 }
 
+/* Prints the result, stripping unnecessary trailing zeroes for whole numbers.
+ */
 void print_result(f64 result) {
 	/* Strip unnecessary trailing zeroes for whole numbers. */
 	if (result == (i64)result) {
@@ -40,10 +39,12 @@ void print_result(f64 result) {
 	}
 }
 
+/* Prints program help. */
 void print_help(void) {
 	printf("usage: %s [options] \"<equation>\"\n", NAME);
 }
 
+/* Prints program version. */
 void print_ver(void) {
 	printf("%s v%d\n", NAME, VERSION);
 }

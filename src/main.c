@@ -3,8 +3,6 @@
 #include "args.h"
 #include "parse.h"
 
-#include "stdio.h"
-
 i32 main(i32 argc, char **argv) {
 	Flags flags = parse_flags(argc, argv);
 
@@ -23,7 +21,7 @@ i32 main(i32 argc, char **argv) {
 		return 1;
 	}
 
-	Node *tree = parse_eq(flags.equation);
+	Node *tree = parse_equation(flags.equation);
 
 	if (!tree) {
 		fprintf(stderr, "%s: malformed equation: %s\n", NAME, flags.equation);
