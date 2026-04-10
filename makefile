@@ -37,6 +37,6 @@ install: $(BIN_DIR)/$(TARGET)
 	install -m 755 $(BIN_DIR)/$(TARGET) $(DESTDIR)$(PREFIX)/bin/$(TARGET)
 
 uninstall:
-	rm -f $(DESTDIR)$(PREFIX)/bin/$(TARGET) $(DESTDIR)$(PREFIX)/bin/$(TARGET_ALIAS)
+	rm -f $(DESTDIR)$(PREFIX)/bin/$(TARGET)
 
 .PHONY: all test clean install debug uninstall
