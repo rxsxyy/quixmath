@@ -11,9 +11,9 @@
 // verisoning scheme of positive incrementing integral numbers, IF a keyword
 // is needed it must in parenthesis after the version number.
 // Eg.: v1 (Beta), v2, v3 ...
-#define VERSION "vX <(release)>"
+#define VERSION "v1"
 
 // Project Name ---------------------------------------------------------------
-#define PROGRAM "name"
+#define PROGRAM "Quixmath"
 
 #endif

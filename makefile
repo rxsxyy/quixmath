@@ -3,7 +3,7 @@ CC = gcc
 CFLAGS = -Wall -Wextra -O3 -DNDEBUG
 LFLAGS = -lm
 
-TARGET = name
+TARGET = qm
 
 SRC_DIR  = src
 BIN_DIR  = bin
