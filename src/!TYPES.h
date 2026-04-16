@@ -2,6 +2,7 @@
 #ifndef TYPE_H
 #define TYPE_H
 
+#include "stdbool.h"
 #include "stddef.h"
 #include "stdint.h"
 
@@ -22,9 +23,11 @@ typedef float f32;
 typedef double f64;
 
 // Bool
+#ifndef _Bool
 #define bool _Bool
 #define true 1
 #define false 0
+#endif
 
 // Object size
 typedef size_t usize;
