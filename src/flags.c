@@ -38,10 +38,9 @@ OptionFlag parse_flags(i32 argc, char **argv) {
                 if (OPTION_TABLE[j].offset == offsetof(OptionFlag, msg) && flags.msg != MK_NONE) {
                     err_set(ERR_FLAG, "unknown flag or extra argument: %s", argv[i]);
                     err_print();
-                    matched = true;
-                    goto next; // don't be scared now
+                } else {
+                    *(i32 *)(base + OPTION_TABLE[j].offset) = OPTION_TABLE[j].value;
                 }
-                *(i32 *)(base + OPTION_TABLE[j].offset) = OPTION_TABLE[j].value;
                 break;
             case O_STR:
                 if (i + 1 < argc)
@@ -54,7 +53,6 @@ OptionFlag parse_flags(i32 argc, char **argv) {
             matched = true;
             break;
         }
-    next: // boo!
 
         if (!matched) {
             if (argv[i][0] != '-' && flags.equation == NULL) {
@@ -83,8 +81,6 @@ void print_ver() {
 
 void run_flags(const OptionFlag *flags) {
     switch (flags->msg) {
-    case MK_ERR:
-        break;
     case MK_VER:
         print_ver();
         break;

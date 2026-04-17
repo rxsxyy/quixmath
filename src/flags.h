@@ -9,7 +9,6 @@ typedef enum {
     MK_NONE,
     MK_VER,
     MK_HELP,
-    MK_ERR,
 } MessageKind;
 
 typedef struct {
