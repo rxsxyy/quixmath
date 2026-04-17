@@ -2,6 +2,7 @@
 #include "flags.h"
 
 #include "!INFO.h"
+#include "error.h"
 #include "stddef.h"
 #include "stdio.h"
 #include "string.h"
@@ -35,7 +36,8 @@ OptionFlag parse_flags(i32 argc, char **argv) {
                 break;
             case O_INT:
                 if (OPTION_TABLE[j].offset == offsetof(OptionFlag, msg) && flags.msg != MK_NONE) {
-                    fprintf(stderr, "error: unknown flag or extra argument: %s\n\n", argv[i]);
+                    err_set(ERR_FLAG, "unknown flag or extra argument: %s", argv[i]);
+                    err_print();
                     matched = true;
                     goto next; // don't be scared now
                 }
@@ -58,7 +60,8 @@ OptionFlag parse_flags(i32 argc, char **argv) {
             if (argv[i][0] != '-' && flags.equation == NULL) {
                 flags.equation = argv[i];
             } else {
-                fprintf(stderr, "error: unknown flag or extra argument: %s\n\n", argv[i]);
+                err_set(ERR_FLAG, "unknown flag or extra argument: %s", argv[i]);
+                err_print();
             }
         }
     }
