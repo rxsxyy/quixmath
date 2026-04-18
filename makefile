@@ -29,12 +29,11 @@ clean:
 debug: CFLAGS = -Wall -Wextra -Wpedantic -Wshadow -Wconversion -g -O0 -DDEBUG
 debug: clean all
 
-# install: $(BIN_DIR)/$(TARGET)
-# 	install -d $(DESTDIR)$(PREFIX)/bin
-# 	install -m 755 $(BIN_DIR)/$(TARGET) $(DESTDIR)$(PREFIX)/bin/$(TARGET)
-# 	ln -sf $(TARGET) $(DESTDIR)$(PREFIX)/bin/$(TARGET_ALIAS)
+install: $(BIN_DIR)/$(TARGET)
+	install -d $(DESTDIR)$(PREFIX)/bin
+	install -m 755 $(BIN_DIR)/$(TARGET) $(DESTDIR)$(PREFIX)/bin/$(TARGET)
 
-# uninstall:
-# 	rm -f $(DESTDIR)$(PREFIX)/bin/$(TARGET) $(DESTDIR)$(PREFIX)/bin/$(TARGET_ALIAS)
+uninstall:
+	rm -f $(DESTDIR)$(PREFIX)/bin/$(TARGET)
 
 .PHONY: all clean
