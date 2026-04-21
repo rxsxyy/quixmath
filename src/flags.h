@@ -6,33 +6,33 @@
 
 // message kind enumerator, check `run_flags()`
 typedef enum {
-	MK_NONE,
-	MK_VER,
-	MK_HELP,
+    MK_NONE,
+    MK_VER,
+    MK_HELP,
 } MessageKind;
 
 typedef struct {
-	char *out_file;
-	char *in_file;
-	char *equation;
-	MessageKind msg;
-	void *TODO; // left here for planned future flags
+    char *out_file;
+    char *in_file;
+    char *equation;
+    MessageKind msg;
+    void *TODO; // left here for planned future flags
 } OptionFlag;
 
 // option kind enumerator.
 typedef enum {
-	O_NONE,
-	O_INT,
-	O_STR,
-	O_BOOL, // also left here for any future plans
+    O_NONE,
+    O_INT,
+    O_STR,
+    O_BOOL, // also left here for any future plans
 } OptionKind;
 
 typedef struct {
-	const char *name;
-	const char *desc;
-	OptionKind kind;
-	usize offset;
-	i32 value;
+    const char *name;
+    const char *desc;
+    OptionKind kind;
+    usize offset;
+    i32 value;
 } Option;
 
 extern const Option OPTION_TABLE[];

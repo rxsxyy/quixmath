@@ -6,8 +6,9 @@
 
 #include "parse.h"
 
-// Recursively evaluates the AST rooted at node and returns the result.
-// Division by zero is reported via err_set() and returns 0.0.
-f64 eval_eq(const Node *node);
+// Evaluates the AST rooted at node, writing the result into the
+// caller-initialized mpfr_t `result`. Division by zero is reported
+// via err_set() and writes 0 into result.
+void eval_eq(mpfr_t result, const Node *node);
 
 #endif

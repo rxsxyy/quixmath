@@ -5,11 +5,11 @@
 #include "!TYPES.h"
 
 typedef enum {
-	ERR_NONE = 0,
-	ERR_PARSE,
-	ERR_ALLOC,
-	ERR_FLAG,
-	ERR_IO,
+    ERR_NONE = 0,
+    ERR_PARSE,
+    ERR_ALLOC,
+    ERR_FLAG,
+    ERR_IO,
 } ErrorKind;
 
 void err_set(ErrorKind kind, const char *fmt, ...);

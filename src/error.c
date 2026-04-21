@@ -15,34 +15,34 @@ static const char *ERR_LABELS[] = {
 };
 
 static struct {
-	ErrorKind kind;
-	char msg[ERR_MSG_MAX];
+    ErrorKind kind;
+    char msg[ERR_MSG_MAX];
 } g_err = {ERR_NONE, {0}};
 
 void err_set(ErrorKind kind, const char *fmt, ...) {
-	g_err.kind = kind;
-	va_list ap;
-	va_start(ap, fmt);
-	vsnprintf(g_err.msg, ERR_MSG_MAX, fmt, ap);
-	va_end(ap);
+    g_err.kind = kind;
+    va_list ap;
+    va_start(ap, fmt);
+    vsnprintf(g_err.msg, ERR_MSG_MAX, fmt, ap);
+    va_end(ap);
 }
 
 void err_print(void) {
-	if (g_err.kind == ERR_NONE) {
-		return;
-	}
-	fprintf(stderr, "error[%s]: %s\n\n", ERR_LABELS[g_err.kind], g_err.msg);
+    if (g_err.kind == ERR_NONE) {
+        return;
+    }
+    fprintf(stderr, "error[%s]: %s\n\n", ERR_LABELS[g_err.kind], g_err.msg);
 }
 
 bool err_has(void) {
-	return g_err.kind != ERR_NONE;
+    return g_err.kind != ERR_NONE;
 }
 
 ErrorKind err_kind(void) {
-	return g_err.kind;
+    return g_err.kind;
 }
 
 void err_clear(void) {
-	g_err.kind = ERR_NONE;
-	g_err.msg[0] = '\0';
+    g_err.kind = ERR_NONE;
+    g_err.msg[0] = '\0';
 }

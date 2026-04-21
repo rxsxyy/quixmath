@@ -1,7 +1,7 @@
 
 CC = gcc
 CFLAGS = -Wall -Wextra -O3 -DNDEBUG
-LFLAGS = -lm
+LFLAGS = -lmpfr
 
 TARGET = qm
 
