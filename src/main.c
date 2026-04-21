@@ -30,9 +30,10 @@ i32 main(i32 argc, char **argv) {
 	f64 result = eval_eq(tree);
 	free_node(tree);
 
-	if (err_has())
+	if (err_has()) {
 		return 1;
+	}
 
-	printf("%g\n", result);
+	printf("%g\n\n", result);
 	return 0;
 }

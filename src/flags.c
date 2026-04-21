@@ -25,8 +25,9 @@ OptionFlag parse_flags(i32 argc, char **argv) {
 		bool matched = false;
 
 		for (usize j = 0; j < OPTION_TABLE_LEN; j++) {
-			if (strcmp(argv[i], OPTION_TABLE[j].name) != 0)
+			if (strcmp(argv[i], OPTION_TABLE[j].name) != 0) {
 				continue;
+			}
 
 			char *base = (char *)&flags;
 
@@ -43,8 +44,9 @@ OptionFlag parse_flags(i32 argc, char **argv) {
 				}
 				break;
 			case O_STR:
-				if (i + 1 < argc)
+				if (i + 1 < argc) {
 					*(char **)(base + OPTION_TABLE[j].offset) = argv[++i];
+				}
 				break;
 			case O_NONE:
 				break;

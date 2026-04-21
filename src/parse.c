@@ -63,8 +63,9 @@ static Node *parse_unary(void) {
 	if (*ptr == '-') {
 		ptr++;
 		Node *operand = parse_unary();
-		if (!operand)
+		if (!operand) {
 			return NULL;
+		}
 		Node *zero = make_num(0.0);
 		if (!zero) {
 			free_node(operand);
