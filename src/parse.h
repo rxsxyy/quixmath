@@ -27,8 +27,8 @@ typedef struct Node {
 
         struct {
             OperationKind op;
-            struct Node *lhs;
-            struct Node *rhs;
+            struct Node *left;
+            struct Node *right;
         };
     };
 } Node;

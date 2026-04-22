@@ -6,6 +6,7 @@
 #include "stddef.h"
 #include "stdio.h"
 #include "string.h"
+#include "vars.h"
 
 const Option OPTION_TABLE[] = {
     // help options
@@ -57,8 +58,29 @@ OptionFlag parse_flags(i32 argc, char **argv) {
         }
 
         if (!matched) {
-            if (argv[i][0] != '-' && flags.equation == NULL) {
-                flags.equation = argv[i];
+            if (argv[i][0] != '-') {
+                char *eq_pos = strchr(argv[i], '=');
+                if (eq_pos != NULL) {
+                    // treat as inline variable assignment: name=value
+                    usize nlen = (usize)(eq_pos - argv[i]);
+                    if (nlen == 0 || nlen >= VAR_NAME_MAX) {
+                        err_set(ERR_FLAG, "invalid variable assignment: %s", argv[i]);
+                        err_print();
+                    } else {
+                        char name[VAR_NAME_MAX];
+                        strncpy(name, argv[i], nlen);
+                        name[nlen] = '\0';
+                        if (!var_set(name, eq_pos + 1)) {
+                            err_set(ERR_FLAG, "invalid value in assignment: %s", argv[i]);
+                            err_print();
+                        }
+                    }
+                } else if (flags.equation == NULL) {
+                    flags.equation = argv[i];
+                } else {
+                    err_set(ERR_FLAG, "unknown flag or extra argument: %s", argv[i]);
+                    err_print();
+                }
             } else {
                 err_set(ERR_FLAG, "unknown flag or extra argument: %s", argv[i]);
                 err_print();

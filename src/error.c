@@ -17,32 +17,32 @@ static const char *ERR_LABELS[] = {
 static struct {
     ErrorKind kind;
     char msg[ERR_MSG_MAX];
-} g_err = {ERR_NONE, {0}};
+} Error = {ERR_NONE, {0}};
 
 void err_set(ErrorKind kind, const char *fmt, ...) {
-    g_err.kind = kind;
+    Error.kind = kind;
     va_list ap;
     va_start(ap, fmt);
-    vsnprintf(g_err.msg, ERR_MSG_MAX, fmt, ap);
+    vsnprintf(Error.msg, ERR_MSG_MAX, fmt, ap);
     va_end(ap);
 }
 
 void err_print(void) {
-    if (g_err.kind == ERR_NONE) {
+    if (Error.kind == ERR_NONE) {
         return;
     }
-    fprintf(stderr, "error[%s]: %s\n\n", ERR_LABELS[g_err.kind], g_err.msg);
+    fprintf(stderr, "error[%s]: %s\n\n", ERR_LABELS[Error.kind], Error.msg);
 }
 
 bool err_has(void) {
-    return g_err.kind != ERR_NONE;
+    return Error.kind != ERR_NONE;
 }
 
 ErrorKind err_kind(void) {
-    return g_err.kind;
+    return Error.kind;
 }
 
 void err_clear(void) {
-    g_err.kind = ERR_NONE;
-    g_err.msg[0] = '\0';
+    Error.kind = ERR_NONE;
+    Error.msg[0] = '\0';
 }

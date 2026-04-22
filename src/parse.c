@@ -3,7 +3,9 @@
 
 #include "!INFO.h"
 #include "ctype.h"
+#include "error.h"
 #include "stdlib.h"
+#include "vars.h"
 
 static const char *ptr;
 
@@ -20,8 +22,8 @@ static Node *make_op(OperationKind op, Node *left, Node *right) {
     }
     n->kind = NODE_OP;
     n->op = op;
-    n->lhs = left;
-    n->rhs = right;
+    n->left = left;
+    n->right = right;
     return n;
 }
 
@@ -41,6 +43,32 @@ static Node *parse_primary(void) {
         return inner;
     }
 
+    // identifier → variable lookup
+    if (isalpha((u8)*ptr)) {
+        char name[VAR_NAME_MAX];
+        usize len = 0;
+        while (isalnum((u8)*ptr) && len < VAR_NAME_MAX - 1) {
+            name[len++] = *ptr++;
+        }
+        name[len] = '\0';
+
+        Node *n = malloc(sizeof(Node));
+        if (!n) {
+            return NULL;
+        }
+        n->kind = NODE_NUM;
+        mpfr_init2(n->value, QM_PRECISION);
+
+        if (!var_get(name, n->value)) {
+            err_set(ERR_PARSE, "undefined variable: %s", name);
+            mpfr_clear(n->value);
+            free(n);
+            return NULL;
+        }
+        return n;
+    }
+
+    // numeric literal
     Node *n = malloc(sizeof(Node));
     if (!n) {
         return NULL;
@@ -159,8 +187,8 @@ void free_node(Node *node) {
         return;
     }
     if (node->kind == NODE_OP) {
-        free_node(node->lhs);
-        free_node(node->rhs);
+        free_node(node->left);
+        free_node(node->right);
     } else {
         mpfr_clear(node->value);
     }
