@@ -16,6 +16,6 @@
 // Project Name ---------------------------------------------------------------
 #define PROGRAM "Quixmath"
 
-#define QM_PRECISION 2<<7
+#define QM_PRECISION 128
 
 #endif
