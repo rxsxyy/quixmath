@@ -1,8 +1,5 @@
-#include "vars.h"
 
-#include "!INFO.h"
-#include "ctype.h"
-#include "string.h"
+#include "quixmath.h"
 
 typedef struct {
     char name[VAR_NAME_MAX];

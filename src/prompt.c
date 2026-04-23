@@ -1,8 +1,4 @@
-#include "prompt.h"
-
-#include "string.h"
-#include "termios.h"
-#include "unistd.h"
+#include "quixmath.h"
 
 // Reads exactly one byte without blocking; returns -1 on timeout/error.
 static i32 read_byte_timed(struct termios *raw_nb) {

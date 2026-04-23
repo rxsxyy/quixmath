@@ -1,8 +1,5 @@
 
-#include "error.h"
-
-#include "stdarg.h"
-#include "stdio.h"
+#include "quixmath.h"
 
 #define ERR_MSG_MAX 256
 

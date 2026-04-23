@@ -1,9 +1,4 @@
-
-#include "calculate.h"
-
-#include "!INFO.h"
-#include "error.h"
-#include "parse.h"
+#include "quixmath.h"
 
 void eval_equation(mpfr_t result, const Node *node) {
     if (!node) {

@@ -1,11 +1,4 @@
-
-#include "parse.h"
-
-#include "!INFO.h"
-#include "ctype.h"
-#include "error.h"
-#include "stdlib.h"
-#include "vars.h"
+#include "quixmath.h"
 
 static const char *ptr;
 

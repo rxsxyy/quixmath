@@ -1,12 +1,4 @@
-
-#include "flags.h"
-
-#include "!INFO.h"
-#include "error.h"
-#include "stddef.h"
-#include "stdio.h"
-#include "string.h"
-#include "vars.h"
+#include "quixmath.h"
 
 const Option OPTION_TABLE[] = {
     // help options
