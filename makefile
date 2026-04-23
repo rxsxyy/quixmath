@@ -1,39 +1,37 @@
-
 CC = gcc
 CFLAGS = -Wall -Wextra -O3 -DNDEBUG
 LFLAGS = -lmpfr
 
 TARGET = qm
 
-SRC_DIR  = src
-BIN_DIR  = bin
-OBJ_DIR  = obj
+SRC_DIR = src
+OBJ_DIR = obj
 
 SOURCES = $(wildcard $(SRC_DIR)/*.c)
 OBJECTS = $(SOURCES:$(SRC_DIR)/%.c=$(OBJ_DIR)/%.o)
 
-all: $(BIN_DIR)/$(TARGET)
+all: $(TARGET)
 
-$(BIN_DIR) $(OBJ_DIR):
+$(OBJ_DIR):
 	mkdir -p $@
 
-$(BIN_DIR)/$(TARGET): $(OBJECTS) | $(BIN_DIR)
+$(TARGET): $(OBJECTS)
 	$(CC) $(OBJECTS) $(LFLAGS) -o $@
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c | $(OBJ_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	rm -rf $(BIN_DIR) $(OBJ_DIR)
+	rm -rf $(OBJ_DIR) $(TARGET)
 
 debug: CFLAGS = -Wall -Wextra -Wpedantic -Wshadow -Wconversion -g -O0 -DDEBUG
 debug: clean all
 
-install: $(BIN_DIR)/$(TARGET)
+install: $(TARGET)
 	install -d $(DESTDIR)$(PREFIX)/bin
-	install -m 755 $(BIN_DIR)/$(TARGET) $(DESTDIR)$(PREFIX)/bin/$(TARGET)
+	install -m 755 $(TARGET) $(DESTDIR)$(PREFIX)/bin/$(TARGET)
 
 uninstall:
 	rm -f $(DESTDIR)$(PREFIX)/bin/$(TARGET)
 
-.PHONY: all clean
+.PHONY: all clean debug install uninstall
