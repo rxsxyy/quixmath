@@ -1,36 +1,4 @@
-#include "!INFO.h"
-#include "!TYPES.h"
-
-#include "calculate.h"
-#include "error.h"
-#include "flags.h"
-#include "parse.h"
-#include "prompt.h"
-#include "stdio.h"
-#include "string.h"
-#include "vars.h"
-
-#define MAX_UNDEF VAR_CAP
-
-// Collected during vars_scan; populated by collect_undef callback.
-static char s_undef[MAX_UNDEF][VAR_NAME_MAX];
-static usize s_undef_count = 0;
-
-static void collect_undef(const char *name) {
-    if (var_exists(name)) {
-        return;
-    }
-    for (usize i = 0; i < s_undef_count; i++) {
-        if (strcmp(s_undef[i], name) == 0) {
-            return;
-        }
-    }
-    if (s_undef_count < MAX_UNDEF) {
-        strncpy(s_undef[s_undef_count], name, VAR_NAME_MAX - 1);
-        s_undef[s_undef_count][VAR_NAME_MAX - 1] = '\0';
-        s_undef_count++;
-    }
-}
+#include "quixmath.h"
 
 i32 main(i32 argc, char **argv) {
     vars_init();
@@ -48,12 +16,12 @@ i32 main(i32 argc, char **argv) {
         vars_free();
         return 0;
     }
-
-    // Find variables in the expression that have no inline assignment.
-    vars_scan(flags.equation, collect_undef);
+    
+    char undefined_var[VARIABLE_MAX][VARIABLE_NAME_MAX];
+    usize undefined_var_count = vars_collect(flags.equation, undefined_var, MAX_UNDEF);
 
     // Prompt for each undefined variable.
-    for (usize i = 0; i < s_undef_count; i++) {
+    for (usize i = 0; i < undefined_var_count; i++) {
         char buf[256];
 
         while (1) {
@@ -75,14 +43,14 @@ i32 main(i32 argc, char **argv) {
             }
 
             usize nlen = (usize)(eq_pos - buf);
-            char name[VAR_NAME_MAX];
-            if (nlen >= VAR_NAME_MAX) {
+            char name[VARIABLE_NAME_MAX];
+            if (nlen >= VARIABLE_NAME_MAX) {
                 continue;
             }
             memcpy(name, buf, nlen);
             name[nlen] = '\0';
 
-            if (strcmp(name, s_undef[i]) != 0) {
+            if (strcmp(name, undefined_var[i]) != 0) {
                 continue;
             }
 
@@ -94,7 +62,7 @@ i32 main(i32 argc, char **argv) {
         }
     }
 
-    Node *tree = parse_eq(flags.equation);
+    Node *tree = parse_equation(flags.equation);
     if (!tree) {
         if (!err_has()) {
             err_set(ERR_PARSE, "invalid expression: %s", flags.equation);
@@ -105,7 +73,7 @@ i32 main(i32 argc, char **argv) {
     }
 
     mpfr_t result;
-    mpfr_init2(result, QM_PRECISION);
+    mpfr_init2(result, PRECISION);
 
     eval_equation(result, tree);
     free_node(tree);

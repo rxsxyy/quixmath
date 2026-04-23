@@ -13,6 +13,7 @@ static Node *make_op(OperationKind op, Node *left, Node *right) {
     if (!n) {
         return NULL;
     }
+    
     n->kind = NODE_OP;
     n->op = op;
     n->left = left;
@@ -20,7 +21,7 @@ static Node *make_op(OperationKind op, Node *left, Node *right) {
     return n;
 }
 
-// Forward declaration needed because parse_primary calls parse_expr upward.
+// forward declaration needed because parse_primary calls parse_expr upward.
 static Node *parse_expr(void);
 
 static Node *parse_primary(void) {
@@ -38,9 +39,9 @@ static Node *parse_primary(void) {
 
     // identifier → variable lookup
     if (isalpha((u8)*ptr)) {
-        char name[VAR_NAME_MAX];
+        char name[VARIABLE_NAME_MAX];
         usize len = 0;
-        while (isalnum((u8)*ptr) && len < VAR_NAME_MAX - 1) {
+        while (isalnum((u8)*ptr) && len < VARIABLE_NAME_MAX - 1) {
             name[len++] = *ptr++;
         }
         name[len] = '\0';
@@ -50,7 +51,7 @@ static Node *parse_primary(void) {
             return NULL;
         }
         n->kind = NODE_NUM;
-        mpfr_init2(n->value, QM_PRECISION);
+        mpfr_init2(n->value, PRECISION);
 
         if (!var_get(name, n->value)) {
             err_set(ERR_PARSE, "undefined variable: %s", name);
@@ -67,7 +68,7 @@ static Node *parse_primary(void) {
         return NULL;
     }
     n->kind = NODE_NUM;
-    mpfr_init2(n->value, QM_PRECISION);
+    mpfr_init2(n->value, PRECISION);
 
     char *end;
     mpfr_strtofr(n->value, ptr, &end, 10, MPFR_RNDN);
@@ -96,7 +97,7 @@ static Node *parse_unary(void) {
             return NULL;
         }
         zero->kind = NODE_NUM;
-        mpfr_init2(zero->value, QM_PRECISION);
+        mpfr_init2(zero->value, PRECISION);
         mpfr_set_d(zero->value, 0.0, MPFR_RNDN);
         return make_op(OP_SUB, zero, operand);
     }
@@ -161,7 +162,7 @@ static Node *parse_expr(void) {
     return left;
 }
 
-Node *parse_eq(const char *eq) {
+Node *parse_equation(const char *eq) {
     if (!eq) {
         return NULL;
     }

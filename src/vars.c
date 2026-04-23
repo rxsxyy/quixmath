@@ -69,14 +69,11 @@ bool var_exists(const char *name) {
     return var_find(name) != NULL;
 }
 
-void vars_scan(const char *expr, void (*cb)(const char *name)) {
-    // tracks which names have already been reported so cb is called once per
-    // name
-    char seen[VARIABLE_MAX][VARIABLE_NAME_MAX];
-    usize seen_count = 0;
+usize vars_collect(const char *expr, char out[][VARIABLE_NAME_MAX], usize cap) {
+    usize count = 0;
     const char *p = expr;
 
-    while (*p) {
+    while (*p && count < cap) {
         if (!isalpha((u8)*p)) {
             p++;
             continue;
@@ -87,20 +84,24 @@ void vars_scan(const char *expr, void (*cb)(const char *name)) {
         while (isalnum((u8)*p) && len < VARIABLE_NAME_MAX - 1) {
             name[len++] = *p++;
         }
-        name[len] = '\0';
 
-        // deduplicate, just so it doesnt read the same variable twice
+        name[len] = '\0';
+        if (var_exists(name)) {
+            continue;
+        }
+
         bool already = false;
-        for (usize i = 0; i < seen_count; i++) {
-            if (strcmp(seen[i], name) == 0) {
+        for (usize i = 0; i < count; i++) {
+            if (strcmp(out[i], name) == 0) {
                 already = true;
                 break;
             }
         }
 
-        if (!already && seen_count < VARIABLE_MAX) {
-            memcpy(seen[seen_count++], name, len + 1);
-            cb(name);
+        if (!already) {
+            memcpy(out[count++], name, len + 1);
         }
     }
+    
+    return count;
 }

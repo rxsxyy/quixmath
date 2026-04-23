@@ -12,8 +12,8 @@ void eval_equation(mpfr_t result, const Node *node) {
     }
 
     mpfr_t left, right;
-    mpfr_init2(left, QM_PRECISION);
-    mpfr_init2(right, QM_PRECISION);
+    mpfr_init2(left, PRECISION);
+    mpfr_init2(right, PRECISION);
 
     eval_equation(left, node->left);
     eval_equation(right, node->right);

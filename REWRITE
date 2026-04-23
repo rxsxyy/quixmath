@@ -4,5 +4,5 @@ error.c/.h              - OK
 flags.c/.h              - REWRITE parse_flags(), too much nesting
 parse.c/.h              - MAYBE, not very verbose
 prompt.c/.h             - REWRITE, too much nesting
-vars.c/.h               - MAYBE, just needs cleaning
+vars.c/.h               - OK
 entry point (quixmath)  - REWRITE, too long

@@ -55,11 +55,11 @@ OptionFlag parse_flags(i32 argc, char **argv) {
                 if (eq_pos != NULL) {
                     // treat as inline variable assignment: name=value
                     usize nlen = (usize)(eq_pos - argv[i]);
-                    if (nlen == 0 || nlen >= VAR_NAME_MAX) {
+                    if (nlen == 0 || nlen >= VARIABLE_NAME_MAX) {
                         err_set(ERR_FLAG, "invalid variable assignment: %s", argv[i]);
                         err_print();
                     } else {
-                        char name[VAR_NAME_MAX];
+                        char name[VARIABLE_NAME_MAX];
                         strncpy(name, argv[i], nlen);
                         name[nlen] = '\0';
                         if (!var_set(name, eq_pos + 1)) {
