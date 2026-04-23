@@ -11,8 +11,10 @@
 #include "termios.h"
 #include "unistd.h"
 
-#define VAR_CAP 64
-#define VAR_NAME_MAX 32
+#define VARIABLE_MAX 64
+#define VARIABLE_NAME_MAX 64
+
+#define PRECISION 128
 
 typedef enum {
     OP_ADD,
