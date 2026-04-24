@@ -12,7 +12,27 @@
 #include "termios.h"
 #include "unistd.h"
 
-#define PRECISION 128
+typedef enum {
+    ERR_NONE,
+    ERR_PARSE,
+    ERR_ALLOC,
+    ERR_FLAG,
+    ERR_IO,
+} ErrorKind;
+
+typedef enum {
+    MK_NONE,
+    MK_VER,
+    MK_HELP,
+} MessageKind;
+
+typedef struct {
+    char *out_file;
+    char *in_file;
+    char *equation;
+    MessageKind msg;
+    void *TODO; // left here for planned future flags
+} OptionFlag;
 
 typedef enum {
     OP_ADD,
@@ -41,47 +61,6 @@ typedef struct Node {
     };
 } Node;
 
-typedef enum {
-    MK_NONE,
-    MK_VER,
-    MK_HELP,
-} MessageKind;
-
-typedef struct {
-    char *out_file;
-    char *in_file;
-    char *equation;
-    MessageKind msg;
-    void *TODO; // left here for planned future flags
-} OptionFlag;
-
-// option kind enumerator.
-typedef enum {
-    O_NONE,
-    O_INT,
-    O_STR,
-    O_BOOL, // also left here for any future plans
-} OptionKind;
-
-typedef struct {
-    const char *name;
-    const char *desc;
-    OptionKind kind;
-    usize offset;
-    i32 value;
-} Option;
-
-extern const Option OPTION_TABLE[];
-extern const usize OPTION_TABLE_LEN;
-
-typedef enum {
-    ERR_NONE,
-    ERR_PARSE,
-    ERR_ALLOC,
-    ERR_FLAG,
-    ERR_IO,
-} ErrorKind;
-
 // calculate.c
 void eval_equation(mpfr_t result, const Node *node);
 
@@ -108,6 +87,7 @@ i32 prompt_read(char *buf, usize cap);
 
 // quixmath.c
 #define MAX_UNDEF VARIABLE_MAX
+#define PRECISION 128
 
 // vars.c
 #define VARIABLE_MAX 64
