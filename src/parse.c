@@ -37,7 +37,7 @@ static Node *parse_primary(void) {
         return inner;
     }
 
-    // identifier → variable lookup
+    // var lookup
     if (isalpha((u8)*ptr)) {
         char name[VARIABLE_NAME_MAX];
         usize len = 0;
@@ -61,8 +61,7 @@ static Node *parse_primary(void) {
         }
         return n;
     }
-
-    // numeric literal
+    
     Node *n = malloc(sizeof(Node));
     if (!n) {
         return NULL;

@@ -1,8 +1,8 @@
 template files          - OK
 calculate.c/.h          - OK
 error.c/.h              - OK
-flags.c/.h              - REWRITE parse_flags(), too much nesting
-parse.c/.h              - MAYBE, not very verbose
-prompt.c/.h             - REWRITE, too much nesting
+flags.c/.h              - OK
+parse.c/.h              - OK
+prompt.c/.h             - OK
 vars.c/.h               - OK
 entry point (quixmath)  - REWRITE, too long

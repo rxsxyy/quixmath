@@ -2,6 +2,7 @@
 #include "!TYPES.h"
 #include "ctype.h"
 #include "error.h"
+#include "getopt.h"
 #include "mpfr.h" // Dependency
 #include "stdarg.h"
 #include "stddef.h"

@@ -1,126 +1,140 @@
 #include "quixmath.h"
 
-// Reads exactly one byte without blocking; returns -1 on timeout/error.
-static i32 read_byte_timed(struct termios *raw_nb) {
-    tcsetattr(STDIN_FILENO, TCSANOW, raw_nb);
+typedef struct {
+    char data[256];
+    usize len;
+    usize cur;
+} Line;
+
+static struct termios s_old, s_raw, s_raw_nb;
+
+static void term_save(void) {
+    tcgetattr(STDIN_FILENO, &s_old);
+
+    s_raw = s_old;
+    s_raw.c_lflag &= (tcflag_t) ~(ECHO | ICANON | ISIG);
+    s_raw.c_cc[VMIN] = 1;
+    s_raw.c_cc[VTIME] = 0;
+
+    s_raw_nb = s_raw;
+    s_raw_nb.c_cc[VMIN] = 0;
+    s_raw_nb.c_cc[VTIME] = 1; // 100ms timeout
+}
+
+static void term_raw(void) {
+    tcsetattr(STDIN_FILENO, TCSANOW, &s_raw);
+}
+
+static void term_raw_nb(void) {
+    tcsetattr(STDIN_FILENO, TCSANOW, &s_raw_nb);
+}
+
+static void term_restore(void) {
+    tcsetattr(STDIN_FILENO, TCSAFLUSH, &s_old);
+}
+
+static i32 read_byte(void) {
     u8 c;
-    i32 n = (i32)read(STDIN_FILENO, &c, 1);
-    return (n == 1) ? (i32)c : -1;
+    return (read(STDIN_FILENO, &c, 1) == 1) ? (i32)c : -1;
+}
+
+// Returns -1 on abort (bare ESC), 0 on handled sequence.
+static i32 handle_escape(Line *ln) {
+    term_raw_nb();
+    i32 b1 = read_byte();
+    term_raw();
+
+    if (b1 != '[') {
+        write(STDOUT_FILENO, "\n", 1);
+        return -1;
+    }
+
+    i32 code = read_byte();
+
+    if (code == 'C' && ln->cur < ln->len) {
+        ln->cur++;
+        write(STDOUT_FILENO, "\x1b[C", 3);
+    } else if (code == 'D' && ln->cur > 0) {
+        ln->cur--;
+        write(STDOUT_FILENO, "\x1b[D", 3);
+    }
+
+    return 0;
+}
+
+static void handle_backspace(Line *ln) {
+    if (ln->cur == 0) {
+        return;
+    }
+
+    memmove(ln->data + ln->cur - 1, ln->data + ln->cur, ln->len - ln->cur);
+    ln->len--;
+    ln->cur--;
+
+    write(STDOUT_FILENO, "\b", 1);
+    write(STDOUT_FILENO, ln->data + ln->cur, ln->len - ln->cur);
+    write(STDOUT_FILENO, " ", 1);
+
+    for (usize i = ln->cur; i <= ln->len; i++) {
+        write(STDOUT_FILENO, "\b", 1);
+    }
+}
+
+static void handle_char(Line *ln, u8 c, usize cap) {
+    if (c < 0x20 || c >= 0x7f || ln->len >= cap - 1) {
+        return;
+    }
+
+    memmove(ln->data + ln->cur + 1, ln->data + ln->cur, ln->len - ln->cur);
+    ln->data[ln->cur] = (char)c;
+    ln->len++;
+
+    write(STDOUT_FILENO, ln->data + ln->cur, ln->len - ln->cur);
+    ln->cur++;
+
+    for (usize i = ln->cur; i < ln->len; i++) {
+        write(STDOUT_FILENO, "\b", 1);
+    }
 }
 
 i32 prompt_read(char *buf, usize cap) {
-    struct termios old, raw, raw_nb;
+    term_save();
+    term_raw();
 
-    tcgetattr(STDIN_FILENO, &old);
-
-    // Canonical raw mode (blocking, 1 byte at a time, no echo).
-    raw = old;
-    raw.c_lflag &= (tcflag_t) ~(ECHO | ICANON | ISIG);
-    raw.c_cc[VMIN] = 1;
-    raw.c_cc[VTIME] = 0;
-
-    // Non-blocking variant used only for peeking after ESC.
-    raw_nb = raw;
-    raw_nb.c_cc[VMIN] = 0;
-    raw_nb.c_cc[VTIME] = 1; // 100 ms timeout
-
-    tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw);
-
-    char data[256];
-    usize len = 0;
-    usize cur = 0;
+    Line ln = {{0}, 0, 0};
     i32 ret = 0;
 
     while (1) {
-        u8 c;
-        if (read(STDIN_FILENO, &c, 1) != 1) {
+        i32 c = read_byte();
+        if (c == -1) {
             break;
         }
 
-        // ── Escape / arrow-key sequence ──────────────────────────────────
         if (c == 0x1b) {
-            i32 b1 = read_byte_timed(&raw_nb);
-            tcsetattr(STDIN_FILENO, TCSANOW, &raw); // restore blocking mode
-
-            if (b1 == '[') {
-                // Arrow-key escape sequence: ESC [ <code>
-                u8 code;
-                if (read(STDIN_FILENO, &code, 1) != 1) {
-                    break;
-                }
-                switch (code) {
-                case 'C': // right arrow
-                    if (cur < len) {
-                        cur++;
-                        write(STDOUT_FILENO, "\x1b[C", 3);
-                    }
-                    break;
-                case 'D': // left arrow
-                    if (cur > 0) {
-                        cur--;
-                        write(STDOUT_FILENO, "\x1b[D", 3);
-                    }
-                    break;
-                case 'A': // up   arrow — ignore
-                case 'B': // down arrow — ignore
-                    break;
-                default:
-                    break;
-                }
-            } else {
-                // Bare ESC (b1 == -1 means no follow-up byte within timeout).
-                write(STDOUT_FILENO, "\n", 1);
+            if (handle_escape(&ln) == -1) {
                 ret = -1;
                 break;
             }
             continue;
         }
 
-        // ── Enter ────────────────────────────────────────────────────────
         if (c == '\r' || c == '\n') {
             write(STDOUT_FILENO, "\n", 1);
             break;
         }
-
-        // ── Backspace / DEL ──────────────────────────────────────────────
         if (c == 127 || c == 8) {
-            if (cur == 0) {
-                continue;
-            }
-            memmove(data + cur - 1, data + cur, len - cur);
-            len--;
-            cur--;
-
-            // Move back, reprint tail, erase last char, reposition cursor.
-            write(STDOUT_FILENO, "\b", 1);
-            write(STDOUT_FILENO, data + cur, len - cur);
-            write(STDOUT_FILENO, " ", 1);
-            for (usize i = cur; i <= len; i++) {
-                write(STDOUT_FILENO, "\b", 1);
-            }
+            handle_backspace(&ln);
             continue;
         }
 
-        // ── Printable character ──────────────────────────────────────────
-        if (c >= 0x20 && c < 0x7f && len < cap - 1) {
-            memmove(data + cur + 1, data + cur, len - cur);
-            data[cur] = (char)c;
-            len++;
-
-            // Print from cursor to end, then rewind to new cursor position.
-            write(STDOUT_FILENO, data + cur, len - cur);
-            cur++;
-            for (usize i = cur; i < len; i++) {
-                write(STDOUT_FILENO, "\b", 1);
-            }
-        }
+        handle_char(&ln, (u8)c, cap);
     }
 
-    tcsetattr(STDIN_FILENO, TCSAFLUSH, &old);
+    term_restore();
 
     if (ret == 0) {
-        data[len] = '\0';
-        memcpy(buf, data, len + 1);
+        ln.data[ln.len] = '\0';
+        memcpy(buf, ln.data, ln.len + 1);
     }
 
     return ret;

@@ -1,98 +1,74 @@
 #include "quixmath.h"
 
-const Option OPTION_TABLE[] = {
-    // help options
-    {       "-h",   "prints this help message;", O_INT, offsetof(OptionFlag, msg), MK_HELP},
-    {   "--help",                            "", O_INT, offsetof(OptionFlag, msg), MK_HELP},
-    // version options
-    {       "-v", "prints version information;", O_INT, offsetof(OptionFlag, msg),  MK_VER},
-    {"--version",                            "", O_INT, offsetof(OptionFlag, msg),  MK_VER},
+static const struct option LONG_OPTS[] = {
+    {"help",    no_argument, NULL, 'h'},
+    {"version", no_argument, NULL, 'v'},
+    {NULL, 0, NULL, 0},
 };
 
-const usize OPTION_TABLE_LEN = sizeof(OPTION_TABLE) / sizeof(OPTION_TABLE[0]);
+void print_help(void) {
+    printf("usage: qm [options] <expression>\n\n");
+    printf("options:\n");
+    printf("  -h, --help       prints this help message;\n");
+    printf("  -v, --version    prints version information;\n\n");
+}
+
+void print_ver(void) {
+    printf("%s %s\n\n", PROGRAM, VERSION);
+}
 
 OptionFlag parse_flags(i32 argc, char **argv) {
     OptionFlag flags = {NULL, NULL, NULL, MK_NONE, 0};
 
-    for (i32 i = 1; i < argc; i++) {
-        bool matched = false;
-
-        for (usize j = 0; j < OPTION_TABLE_LEN; j++) {
-            if (strcmp(argv[i], OPTION_TABLE[j].name) != 0) {
-                continue;
-            }
-
-            char *base = (char *)&flags;
-
-            switch (OPTION_TABLE[j].kind) {
-            case O_BOOL:
-                *(bool *)(base + OPTION_TABLE[j].offset) = (bool)OPTION_TABLE[j].value;
-                break;
-            case O_INT:
-                if (OPTION_TABLE[j].offset == offsetof(OptionFlag, msg) && flags.msg != MK_NONE) {
-                    err_set(ERR_FLAG, "unknown flag or extra argument: %s", argv[i]);
-                    err_print();
-                } else {
-                    *(i32 *)(base + OPTION_TABLE[j].offset) = OPTION_TABLE[j].value;
-                }
-                break;
-            case O_STR:
-                if (i + 1 < argc) {
-                    *(char **)(base + OPTION_TABLE[j].offset) = argv[++i];
-                }
-                break;
-            case O_NONE:
+    int opt;
+    while ((opt = getopt_long(argc, argv, "hv", LONG_OPTS, NULL)) != -1) {
+        switch (opt) {
+        case 'h':
+            if (flags.msg != MK_NONE) {
+                err_set(ERR_FLAG, "conflicting flags");
+                err_print();
                 break;
             }
-
-            matched = true;
+            flags.msg = MK_HELP;
+            break;
+        case 'v':
+            if (flags.msg != MK_NONE) {
+                err_set(ERR_FLAG, "conflicting flags");
+                err_print();
+                break;
+            }
+            flags.msg = MK_VER;
+            break;
+        case '?':
             break;
         }
+    }
 
-        if (!matched) {
-            if (argv[i][0] != '-') {
-                char *eq_pos = strchr(argv[i], '=');
-                if (eq_pos != NULL) {
-                    // treat as inline variable assignment: name=value
-                    usize nlen = (usize)(eq_pos - argv[i]);
-                    if (nlen == 0 || nlen >= VARIABLE_NAME_MAX) {
-                        err_set(ERR_FLAG, "invalid variable assignment: %s", argv[i]);
-                        err_print();
-                    } else {
-                        char name[VARIABLE_NAME_MAX];
-                        strncpy(name, argv[i], nlen);
-                        name[nlen] = '\0';
-                        if (!var_set(name, eq_pos + 1)) {
-                            err_set(ERR_FLAG, "invalid value in assignment: %s", argv[i]);
-                            err_print();
-                        }
-                    }
-                } else if (flags.equation == NULL) {
-                    flags.equation = argv[i];
-                } else {
-                    err_set(ERR_FLAG, "unknown flag or extra argument: %s", argv[i]);
-                    err_print();
-                }
-            } else {
-                err_set(ERR_FLAG, "unknown flag or extra argument: %s", argv[i]);
+    for (i32 i = optind; i < argc; i++) {
+        char *eq_pos = strchr(argv[i], '=');
+        if (eq_pos != NULL) {
+            usize nlen = (usize)(eq_pos - argv[i]);
+            if (nlen == 0 || nlen >= VARIABLE_NAME_MAX) {
+                err_set(ERR_FLAG, "invalid variable assignment: %s", argv[i]);
+                err_print();
+                continue;
+            }
+            char name[VARIABLE_NAME_MAX];
+            strncpy(name, argv[i], nlen);
+            name[nlen] = '\0';
+            if (!var_set(name, eq_pos + 1)) {
+                err_set(ERR_FLAG, "invalid value in assignment: %s", argv[i]);
                 err_print();
             }
+        } else if (flags.equation == NULL) {
+            flags.equation = argv[i];
+        } else {
+            err_set(ERR_FLAG, "unknown flag or extra argument: %s", argv[i]);
+            err_print();
         }
     }
 
     return flags;
-}
-
-void print_help() {
-    printf("usage: qm [options] <expression>\n\n");
-    printf("options:\n");
-    for (usize i = 0; i < OPTION_TABLE_LEN; i++) {
-        printf("  %-14s %s\n", OPTION_TABLE[i].name, OPTION_TABLE[i].desc);
-    }
-}
-
-void print_ver() {
-    printf("%s %s \n", PROGRAM, VERSION);
 }
 
 void run_flags(const OptionFlag *flags) {
