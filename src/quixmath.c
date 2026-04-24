@@ -20,7 +20,6 @@ i32 main(i32 argc, char **argv) {
     char undefined_var[VARIABLE_MAX][VARIABLE_NAME_MAX];
     usize undefined_var_count = vars_collect(flags.equation, undefined_var, MAX_UNDEF);
 
-    // Prompt for each undefined variable.
     for (usize i = 0; i < undefined_var_count; i++) {
         char buf[256];
 

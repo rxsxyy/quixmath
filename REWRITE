@@ -1,8 +1,0 @@
-template files          - OK
-calculate.c/.h          - OK
-error.c/.h              - OK
-flags.c/.h              - OK
-parse.c/.h              - OK
-prompt.c/.h             - OK
-vars.c/.h               - OK
-entry point (quixmath)  - REWRITE, too long
